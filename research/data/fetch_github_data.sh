@@ -30,3 +30,9 @@ curl -fsSL "$raw/datasets/s-and-p-500/HEAD/data/data.csv" -o "$D/shiller/sp500_s
 # Bitcoin diário desde 2011
 curl -fsSL "$raw/rcaljouw/btc-price-history/HEAD/data/btc-usd-daily.csv" -o "$D/btc/btc-usd-daily.csv"
 echo "ok -> $D"
+
+# Intradiário (estudo 2): SPY 1 minuto 2008–2021 e mini-índice WIN 5 minutos (jun–out/2023)
+mkdir -p "$D/intraday"
+curl -fsSL "$media/CryonicArtist/Xlchedelic/HEAD/spy_1min_2008_2021_cleaned.parquet" -o "$D/intraday/SPY_1m.parquet" \
+  || curl -fsSL "$raw/CryonicArtist/Xlchedelic/HEAD/spy_1min_2008_2021_cleaned.parquet" -o "$D/intraday/SPY_1m.parquet"
+curl -fsSL "$raw/Bielhpp/MarketPrediction_WinfutBr-CandlestickChart/HEAD/winfut_5min.xlsx" -o "$D/intraday/WIN_5m.xlsx"

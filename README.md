@@ -1,10 +1,11 @@
 # Ia-money
 
-Sistema autônomo de trading (ações e cripto) rodando em GitHub Actions, com custo zero de infraestrutura.
+Sistema autônomo de trading (ações e cripto) orquestrado por GitHub Actions, com custo zero de infraestrutura.
 
-**Status:** Passo 1 concluído; aguardando aprovação.
+**Status:** Passo 1 (v3) concluído; aguardando aprovação.
 
-- [docs/ESTUDO_ESTRATEGIAS.md](docs/ESTUDO_ESTRATEGIAS.md): estudo com ≈ 250 variantes de estratégias e as 3 melhores.
-- [docs/PROPOSTA.md](docs/PROPOSTA.md): proposta de sistema baseada no estudo.
-- [research/](research): código reprodutível do estudo (dados, backtests, resultados).
-- [docs/arquivo/](docs/arquivo): propostas anteriores (rejeitadas).
+- [docs/ESTUDO_ESTRATEGIAS.md](docs/ESTUDO_ESTRATEGIAS.md): estudo 1, com ≈ 250 estratégias em dados diários (EUA desde 1926, Brasil desde 2001, cripto desde 2011).
+- [docs/ESTUDO_INTRADAY.md](docs/ESTUDO_INTRADAY.md): estudo 2, com dados de 1 minuto, setups de day trade e seus "fades", posicionamento do varejo, ML e a meta de 5% ao mês.
+- [docs/PROPOSTA.md](docs/PROPOSTA.md): proposta de sistema baseada nos dois estudos.
+- [research/](research): código reprodutível (dados, backtests, resultados).
+- [docs/arquivo/](docs/arquivo): versões anteriores da proposta.

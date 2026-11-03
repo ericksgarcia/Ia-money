@@ -1,59 +1,69 @@
-# Passo 1 (v2): proposta de sistema de trading autônomo
+# Passo 1 (v3): proposta de sistema de trading autônomo
 
 > Status: **aguardando aprovação do operador**. Nenhum código de integração (corretora, Telegram) foi escrito.
-> Base: [ESTUDO_ESTRATEGIAS.md](ESTUDO_ESTRATEGIAS.md) (≈ 250 variantes testadas em EUA 1926–2026, Brasil 2001–2026 e cripto 2011–2026).
+> Base: [ESTUDO_ESTRATEGIAS.md](ESTUDO_ESTRATEGIAS.md) (≈ 250 variantes, dados diários desde 1926) e
+> [ESTUDO_INTRADAY.md](ESTUDO_INTRADAY.md) (dados de 1 minuto, posicionamento do varejo e a meta de 5% ao mês).
+> Versões anteriores: [docs/arquivo/](arquivo).
 
 ## 1. Decisão
 
-Implementar as 3 estratégias vencedoras do estudo:
+Uma carteira de 4 sinais pouco correlacionados em perpétuos de cripto, mais um sinal mensal de ações:
 
-| Módulo | Estratégia | Execução | Frequência |
-|---|---|---|---|
-| **A** | Tendência em BTC/ETH (média de 23 regras, comprado ou caixa) | 100% automática via API da corretora | Diária (00:10 UTC) |
-| **B** | Carry de funding no caixa do módulo A (vende perpétuo na fração em caixa) | 100% automática, na mesma conta | Diária, junto com A |
-| **C** | Momentum em ações da B3 (terço com maior retorno em 12 meses) | Sinal automático e execução manual sua (sem API gratuita na B3) | Mensal |
+| Módulo | Sinal | Ativos | Frequência | OOS 2024–2026 (1×) |
+|---|---|---|---|---|
+| **A** | Tendência (média de 23 regras) + carry de funding no caixa | BTC (e ETH) | Diária | +2,2%/mês · Sharpe 0,84 |
+| **B** | **Contra o varejo:** vende quando as contas estão anormalmente compradas, compra no inverso | BTC, ETH, SOL, DOGE, XRP | Horária, segura 24h | +1,7%/mês · Sharpe 0,75 |
+| **C** | **Top traders comprando enquanto o varejo vende** (e vice-versa) | idem | Horária, segura 24h | +1,9%/mês · Sharpe 0,88 |
+| **D** | **Compra após cascata de liquidação** (queda forte + open interest despencando) | idem | Horária, segura 24h | +1,0%/mês · Sharpe 0,56 |
+| **A+B+C+D** | Pesos de risco iguais | | | **+1,8%/mês · Sharpe 1,31 · queda máx. −14%** |
+| E | Momentum em ações da B3 | Ações líquidas | Mensal (você executa) | +15,6%/ano (2014–2026) |
 
-O módulo B só entra se a corretora escolhida oferecer perpétuo com margem unificada e aceitar chamadas dos servidores do GitHub. Sem isso, o módulo A roda sozinho com caixa em USDT (Sharpe 1,07 em vez de 1,17 em 2023–2026).
+Os sinais B, C e D usam 1h de atraso extra, que é o caso conservador.
 
-## 2. Arquitetura (custo zero: repositório público, GitHub Actions e APIs gratuitas)
+**Descartado pelos estudos:** os setups populares de day trade (MME 9/21, 9.1, VWAP, RSI, ORB, ICT etc.) e o "fade" deles. Todos perdem depois dos custos.
+
+## 2. Nível de alavancagem (decisão sua)
+
+| Opção | Média mensal histórica (2022–2026) | Ano mediano simulado | Chance de ano no prejuízo | Chance de queda ≥ 50% | Queda máxima histórica |
+|---|---|---|---|---|---|
+| **1× (recomendada para começar)** | +1,9% | +22% | 11% | 0% | −14% |
+| 2× | +3,8% | +43% | 14% | 0% | −27% |
+| **2,8× (meta de 5%/mês)** | +5,3% | +63% | 14% | 4% | −36% |
+| 5× | +9,9% | +102% | 20% | 43% | −57% |
+
+**Importante:**
+- Desde mar/2025 a combinação ficou praticamente de lado (+5% a 1×). A vantagem existe, mas está diminuindo.
+- A meta de 5%/mês só aparece **na média** e com ~3× de alavancagem. A maioria dos anos simulados não a atinge.
+
+## 3. Arquitetura (custo zero)
 
 ```
-GitHub Actions
-├─ cripto-diario.yml   (cron 00:10 UTC, ~1 min)
-│    1. baixa candles diários (API pública da corretora)
-│    2. calcula as 23 regras → posição-alvo BTC/ETH (0–100%)
-│    3. compara com a posição real; só opera se o desvio for > 5 p.p. (economiza custo)
-│    4. ajusta o spot e/ou o hedge no perpétuo (módulo B)
-│    5. grava o estado no branch `data` e manda um resumo no Telegram
-├─ acoes-mensal.yml    (1º dia útil do mês)
-│    ranking de momentum da B3 com dados gratuitos (cotações B3/CVM)
-│    → lista de compras/vendas no Telegram e numa Issue do repositório
-├─ saude.yml           (diário)
-│    confere se o job rodou, se a posição bate com o alvo e o drawdown;
-│    abre Issue e pausa tudo se algo sair do esperado ("kill switch")
-└─ reestudo.yml        (mensal)
-     reroda o backtest com os dados novos para detectar se a vantagem está sumindo
+GitHub (repositório público: código, histórico, relatórios, Issues de alerta)
+└─ GitHub Actions
+   ├─ runner próprio no Brasil (VM "Always Free" da Oracle em São Paulo, ou seu PC)
+   │   necessário porque a API da Binance bloqueia os servidores do GitHub nos EUA,
+   │   e os sinais B/C/D precisam de dados em tempo quase real
+   │   ├─ sinais-hora.yml   (a cada hora): lê posicionamento/OI/preço → posições-alvo B, C, D
+   │   ├─ tendencia-dia.yml (00:10 UTC): módulo A
+   │   └─ executor: soma as posições-alvo × alavancagem escolhida, só opera se o desvio > limite
+   ├─ runners gratuitos do GitHub (EUA)
+   │   ├─ acoes-mensal.yml: ranking de momentum da B3 → Telegram/Issue
+   │   ├─ saude.yml: confere execução, drawdown e divergência do backtest; pausa tudo se preciso
+   │   └─ reestudo.yml (mensal): reroda os estudos para detectar perda de vantagem
+   └─ notificações: Telegram (bot gratuito)
 ```
 
-**Proteções obrigatórias:**
+**Proteções:**
 - chave de API **sem permissão de saque**;
-- limite máximo de posição;
+- alavancagem máxima fixa;
 - *kill switch* por variável do repositório;
-- **modo papel** (paper trading) por 2 a 4 semanas antes de usar dinheiro real.
-
-## 3. Expectativa honesta
-
-| Módulo | Histórico (fora da amostra) | Pior queda histórica | Observação |
-|---|---|---|---|
-| A + B (BTC) | 36% a.a. em 2023–2026 · Sharpe 1,17 | −25% (2023–26) / −44% (2020–26) | 2025–2026 ficou perto de zero (−2% e +3%) |
-| A (50/50 BTC+ETH) | 27% a.a. em 2023–2026 · Sharpe 0,93 | −30% | ETH mais fraco que BTC no período recente |
-| C (B3 long-only) | 15,6% a.a. em 2014–2026, contra 10,9% do mercado e 10,1% do CDI | −48% | Cai junto com a bolsa em crises |
-
-**O sistema não gera dinheiro do nada: ele precisa do seu capital e pode perder parte dele.** O ganho esperado é proporcional ao valor alocado. Os números acima são de backtest.
+- pausa automática se a queda passar do limite definido;
+- **modo simulado por 2 a 3 meses** antes do dinheiro real.
 
 ## 4. Pontos a resolver no Passo 2
 
-1. **Corretora de cripto:** precisa atender residentes no Brasil, ter API spot (e idealmente perpétuo com margem unificada) e aceitar chamadas de servidores nos EUA, onde rodam os runners do GitHub. A Binance respondeu **HTTP 451** daqui. Vou comparar as alternativas, ou propor um runner próprio.
-2. **Telegram:** um bot gratuito para relatórios e alertas.
-3. **Capital e limites:** quanto alocar, posição máxima e drawdown que dispara a pausa.
-4. **Tributação:** registrar operações para o imposto (o sistema pode gerar o relatório mensal).
+1. **Corretora de perpétuos** acessível a partir do runner no Brasil. Os sinais foram estudados com dados da Binance; outra corretora exige validar que o sinal se mantém.
+2. **Runner no Brasil:** criar a VM gratuita (ou usar seu computador) e registrá-la como runner do repositório.
+3. **Telegram:** bot para relatórios e alertas.
+4. **Capital, alavancagem (seção 2) e limite de queda** para a pausa automática.
+5. **Tributação:** relatório mensal de operações para o imposto.
