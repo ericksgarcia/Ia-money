@@ -6,6 +6,7 @@ Sistema autônomo de trading (ações e cripto) orquestrado por GitHub Actions, 
 
 - [docs/ESTUDO_ESTRATEGIAS.md](docs/ESTUDO_ESTRATEGIAS.md): estudo 1, com ≈ 250 estratégias em dados diários (EUA desde 1926, Brasil desde 2001, cripto desde 2011).
 - [docs/ESTUDO_INTRADAY.md](docs/ESTUDO_INTRADAY.md): estudo 2, com dados de 1 minuto, setups de day trade e seus "fades", posicionamento do varejo, ML e a meta de 5% ao mês.
-- [docs/PROPOSTA.md](docs/PROPOSTA.md): proposta de sistema baseada nos dois estudos.
+- [docs/ESTUDO_MATEMATICO.md](docs/ESTUDO_MATEMATICO.md): estudo 3, o gráfico como equação (Hurst, Fourier, Ornstein-Uhlenbeck, entropia, mineração com controle de falsas descobertas, volatilidade prevista).
+- [docs/PROPOSTA.md](docs/PROPOSTA.md): proposta de sistema baseada nos três estudos.
 - [research/](research): código reprodutível (dados, backtests, resultados).
 - [docs/arquivo/](docs/arquivo): versões anteriores da proposta.

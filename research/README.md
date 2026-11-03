@@ -52,3 +52,18 @@ python research/intraday/graficos.py
 | `intraday/spy.py` / `intraday/win.py` | Day trade em ações (SPY 1m) e no mini-índice (WIN 5m) |
 | `intraday/ml.py` | LightGBM com 25 variáveis, walk-forward mensal com purga |
 | `intraday/meta5.py` | Combinação por paridade de risco, Kelly e Monte Carlo com alavancagem |
+
+## Estudo 3 — matemática do preço (`matematica/`)
+
+```bash
+pip install scipy
+python research/matematica/diag.py            # razão de variâncias por escala, Fourier, memória da vol → results/mat_diag.md
+python research/matematica/memoria.py         # VR padronizada, equação de memória → results/mat_memoria.md
+python research/matematica/statarb.py         # PCA/Ornstein-Uhlenbeck e pares Kalman → results/mat_statarb.md
+python research/matematica/kalman_reteste.py  # → results/mat_kalman.md
+python research/matematica/micro.py           # BTC→altcoins, funding, números redondos → results/mat_micro.md
+python research/matematica/liquidez.py        # ímãs de liquidação reconstruídos do OI → results/mat_liquidez.md
+python research/matematica/mineracao.py       # 18 descritores + Benjamini-Hochberg → results/mat_mineracao.md
+python research/matematica/volgest.py         # HAR, gestão por vol., carteira e Monte Carlo (rode antes intraday/meta5.py e mineracao.py) → results/mat_volgest.md
+python research/matematica/vrp_graficos.py    # prêmio de variância (DVOL) e gráficos
+```

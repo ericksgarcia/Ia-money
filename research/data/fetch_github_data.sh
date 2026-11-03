@@ -36,3 +36,7 @@ mkdir -p "$D/intraday"
 curl -fsSL "$media/CryonicArtist/Xlchedelic/HEAD/spy_1min_2008_2021_cleaned.parquet" -o "$D/intraday/SPY_1m.parquet" \
   || curl -fsSL "$raw/CryonicArtist/Xlchedelic/HEAD/spy_1min_2008_2021_cleaned.parquet" -o "$D/intraday/SPY_1m.parquet"
 curl -fsSL "$raw/Bielhpp/MarketPrediction_WinfutBr-CandlestickChart/HEAD/winfut_5min.xlsx" -o "$D/intraday/WIN_5m.xlsx"
+
+# Estudo 3: volatilidade implícita DVOL (jul/2025–fev/2026) do repositório JackREscowitz/pvol
+mkdir -p "$D/dvol"
+curl -fsSL "$raw/JackREscowitz/pvol/HEAD/backend/data/history.json" -o "$D/dvol/pvol_history.json"

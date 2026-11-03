@@ -2,7 +2,8 @@
 
 > Status: **aguardando aprovação do operador**. Nenhum código de integração (corretora, Telegram) foi escrito.
 > Base: [ESTUDO_ESTRATEGIAS.md](ESTUDO_ESTRATEGIAS.md) (≈ 250 variantes, dados diários desde 1926) e
-> [ESTUDO_INTRADAY.md](ESTUDO_INTRADAY.md) (dados de 1 minuto, posicionamento do varejo e a meta de 5% ao mês).
+> [ESTUDO_INTRADAY.md](ESTUDO_INTRADAY.md) (dados de 1 minuto, posicionamento do varejo e a meta de 5% ao mês) e
+> [ESTUDO_MATEMATICO.md](ESTUDO_MATEMATICO.md) (Hurst, Fourier, Ornstein-Uhlenbeck, entropia, mineração de equações, volatilidade).
 > Versões anteriores: [docs/arquivo/](arquivo).
 
 ## 1. Decisão
@@ -20,7 +21,11 @@ Uma carteira de 4 sinais pouco correlacionados em perpétuos de cripto, mais um 
 
 Os sinais B, C e D usam 1h de atraso extra, que é o caso conservador.
 
-**Descartado pelos estudos:** os setups populares de day trade (MME 9/21, 9.1, VWAP, RSI, ORB, ICT etc.) e o "fade" deles. Todos perdem depois dos custos.
+**Ajustes do estudo 3:**
+- O módulo B passa a usar **exposição ajustada pela volatilidade prevista**. Fora da amostra, o Sharpe subiu de 0,75 para 1,05 e a queda máxima caiu de −29% para −19%.
+- A **equação de atenção e fluxo** (proximidade da máxima/mínima de 30 dias, volume anormal, fluxo agressor) roda **só em modo simulado**: rendeu +1,5%/mês fora da amostra, mas não elevou o Sharpe da carteira.
+
+**Descartado pelos estudos:** os setups populares de day trade (MME 9/21, 9.1, VWAP, RSI, ORB, ICT etc.) e o "fade" deles, que perdem depois dos custos. Também ciclos de Fourier, entropia, curvatura, wavelets, números redondos, ímãs de liquidação, arbitragem estatística (PCA/OU, Kalman) e venda de volatilidade, que não mostraram vantagem fora da amostra.
 
 ## 2. Nível de alavancagem (decisão sua)
 
